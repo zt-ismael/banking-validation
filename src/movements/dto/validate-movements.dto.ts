@@ -1,31 +1,62 @@
-import { IsDate, IsInt, IsNotEmpty } from 'class-validator';
+import { IsDate, IsInt, ValidateNested, ArrayNotEmpty, IsDefined, IsArray, IsString, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
+/**
+ * Represents a movement in the banking system.
+ */
 export class MovementDto {
+  @ApiProperty({ required: true, type: Number })
+  @IsDefined()
   @IsInt()
   id: number;
 
-  @IsNotEmpty()
+  @ApiProperty({ required: true, type: Date })
+  @IsDefined()
   @Type(() => Date)
+  @IsDate()
   date: Date;
 
-  @IsNotEmpty()
+  @ApiProperty({ required: true, type: String })
+  @IsDefined()
+  @IsString()
   label: string;
 
-  @IsInt()
+  @ApiProperty({ required: true, type: Number })
+  @IsDefined()
+  @IsNumber()
   amount: number;
 }
 
 export class BalanceDto {
-  @IsNotEmpty()
+  @ApiProperty({ required: true, type: Date })
+  @IsDefined()
   @Type(() => Date)
+  @IsDate()
   date: Date;
 
+  @ApiProperty({ required: true, type: Number })
+  @IsDefined()
   @IsInt()
   balance: number;
 }
 
 export class ValidateMovementsDto {
+  @ApiProperty({ type: [MovementDto], required: true })
+  @IsDefined()
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => MovementDto)
   movements: MovementDto[];
+
+  @ApiProperty({ type: [BalanceDto], required: true })
+  @IsDefined()
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => BalanceDto)
   balances: BalanceDto[];
+
+  
 }

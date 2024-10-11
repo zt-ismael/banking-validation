@@ -23,7 +23,7 @@ describe('MovementsService', () => {
 
     const result = service.validateMovements({ movements, balances });
 
-    expect(result).toEqual({ valid: true, message: 'Accepted' });
+    expect(result).toEqual({ success: true, message: 'Accepted' });
   });
 
   it('should fail validation for incorrect balance', () => {
@@ -37,7 +37,8 @@ describe('MovementsService', () => {
     const result = service.validateMovements({ movements, balances });
 
     expect(result).toEqual({
-      valid: false,
+      success: false,
+      message: "Validation failed",
       reasons: [{
         type: 'balance_mismatch',
         message: expect.stringContaining('Balance mismatch'),
