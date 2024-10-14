@@ -75,10 +75,10 @@ jobs:
         with:
           node-version: '20'
 
-      # Step 3: Install Railway CLI and deploy
-      - name: Deploy to Railway using the new Railway CLI
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }} # Railway deployment token
-        run: |
-          npm install -g @railway/cli
-          railway up --ci
+      # Step 3: Install Railway CLI and deploy with token explicitly
+    - name: Deploy to Railway using Railway CLI
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }} # Railway deployment token
+      run: |
+        npm install -g @railway/cli
+        railway up --ci --token $RAILWAY_TOKEN
