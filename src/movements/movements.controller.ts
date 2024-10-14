@@ -1,10 +1,9 @@
-import { BadRequestException, Body, Controller, HttpException, HttpStatus, Post, Req, Res, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException, Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
 import { MovementsService } from './movements.service';
 import { ValidateMovementsDto } from './dto/validate-movements.dto';
-import { ApiTags, ApiResponse, ApiBody, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiBody, ApiOperation, ApiBadRequestResponse, ApiOkResponse } from '@nestjs/swagger';
 import { ValidationResponseDto } from './dto/validation-response.dto';
-import { Request, Response } from 'express';
-import { ValidationPipe } from '@nestjs/common';
+import { Response } from 'express';
 
 @ApiTags('movements')
 @Controller('movements')
@@ -16,19 +15,12 @@ export class MovementsController {
         summary: 'Validate movements',
         description: 'Validates a list of movements and balances to ensure they are consistent with each other.',
       })
-    @ApiResponse({ status: 202, description: 'Accepted', type: ValidationResponseDto })
-    @ApiResponse({ status: 422, description: 'Validation failed', type: ValidationResponseDto })
+    @ApiOkResponse({ description: 'Data successfully processed (validation succeeded or failed)', type: ValidationResponseDto, example: { success: false, message: 'Validation failed', validationErrors: [] } })
+    @ApiBadRequestResponse({ description: 'Bad request (malformed body)', example: { statusCode: 400, message: ['movements[0].amount should not be empty'] } })
     @ApiBody({ type: ValidateMovementsDto })
-    validate(@Req() req: Request, @Res() res: Response, @Body() validateMovementsDto: ValidateMovementsDto): ValidationResponseDto | BadRequestException {
+    validate(@Res() res: Response, @Body() validateMovementsDto: ValidateMovementsDto): ValidationResponseDto | BadRequestException {
         const result = this.movementsService.validateMovements(validateMovementsDto);
-        
-        // Return 202 for successful validation
-        if (result.success) {
-            res.status(HttpStatus.ACCEPTED).json(result);
-            return result;
-        } else {
-            // Return 422 for failed validation (but valid request structure)
-            throw new UnprocessableEntityException(result);
-        }
+        res.status(HttpStatus.OK).json(result);
+        return result;
     }
 }

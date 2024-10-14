@@ -8,29 +8,31 @@ export class MovementsService {
         const { movements, balances } = dto;
         const validationErrors: any[] = [];
 
-        // Validate each balance
+        // Filter duplicate transactions
+        const uniqueIds = new Set<number>();
+        const filteredMovements = movements.filter((movement) => {
+            if (uniqueIds.has(movement.id)) {
+                validationErrors.push({
+                    type: 'duplicate_transaction',
+                    message: `Duplicate transaction with id ${movement.id}`,
+                });
+                return false;
+            } else {
+                uniqueIds.add(movement.id);
+                return true;
+            }
+        });
+
+        // Validate each balance with filtered movements
         for (const balance of balances) {
-            const filteredMovements = movements.filter(m => m.date <= balance.date);
-            const calculatedBalance = filteredMovements.reduce((sum, mov) => sum + mov.amount, 0);
+            const filteredBalanceMovements = filteredMovements.filter(m => m.date <= balance.date);
+            const calculatedBalance = filteredBalanceMovements.reduce((sum, mov) => sum + mov.amount, 0);
 
             if (calculatedBalance !== balance.balance) {
                 validationErrors.push({
                     type: 'balance_mismatch',
                     message: `Balance mismatch on ${balance.date}. Expected: ${balance.balance}, Got: ${calculatedBalance}`,
                 });
-            }
-        }
-
-        // Check for duplicate transactions
-        const transactionIds = new Set();
-        for (const movement of movements) {
-            if (transactionIds.has(movement.id)) {
-                validationErrors.push({
-                    type: 'duplicate_transaction',
-                    message: `Duplicate transaction with id ${movement.id}`,
-                });
-            } else {
-                transactionIds.add(movement.id);
             }
         }
 

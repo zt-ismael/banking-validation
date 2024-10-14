@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { RedocModule, RedocOptions } from 'nestjs-redoc';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { validationPipeConfig } from './validation-pipe.config';  // Import config
+import { validationPipeConfig } from './validationPipeConfig';  // Import shared config (shared with e2e test)
 
 async function bootstrap() {
   const app: INestApplication = await NestFactory.create(AppModule);

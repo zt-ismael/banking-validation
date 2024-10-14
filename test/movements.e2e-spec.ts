@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { validationPipeConfig } from '../src/validation-pipe.config';  // Import shared config (shared with src)
+import { validationPipeConfig } from '../src/validationPipeConfig';  // Import shared config (shared with src)
 
 describe('MovementsController (e2e)', () => {
   let app: INestApplication;
@@ -21,7 +21,7 @@ describe('MovementsController (e2e)', () => {
     await app.close();
   });
 
-  it('should return 202 for successful validation', async () => {
+  it('should return 200 for successful validation', async () => {
     const validRequest = {
       movements: [
         { id: 1, date: '2023-01-01', label: 'Achat', amount: 100 },
@@ -35,7 +35,7 @@ describe('MovementsController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/movements/validation')
       .send(validRequest)
-      .expect(202);
+      .expect(200);
 
     expect(response.body).toEqual({
       success: true,
@@ -43,7 +43,7 @@ describe('MovementsController (e2e)', () => {
     });
   });
 
-  it('should return 422 for failed validation due to missing movements', async () => {
+  it('should return 200 for failed validation due to missing movements', async () => {
     const invalidRequest = {
       movements: [
         { id: 1, date: '2023-01-01', label: 'Achat', amount: 100 },
@@ -56,7 +56,7 @@ describe('MovementsController (e2e)', () => {
     const response = await request(app.getHttpServer())
       .post('/movements/validation')
       .send(invalidRequest)
-      .expect(422);
+      .expect(200);
 
     expect(response.body).toEqual({
       success: false,
@@ -65,21 +65,22 @@ describe('MovementsController (e2e)', () => {
     });
   });
 
-  it('should return 422 for duplicate transactions', async () => {
+  it('should return 200 for duplicate transactions', async () => {
     const invalidRequestWithDuplicates = {
       movements: [
         { id: 1, date: '2023-01-01', label: 'Achat', amount: 100 },
-        { id: 1, date: '2023-01-05', label: 'Achat', amount: 100 }, // duplicate
+        { id: 1, date: '2023-01-01', label: 'Achat', amount: 100 }, // duplicate
+        { id: 2, date: '2023-01-15', label: 'Vente', amount: -100 },
       ],
       balances: [
-        { date: '2023-01-31', balance: 200 },
+        { date: '2023-01-31', balance: 0 },
       ],
     };
 
     const response = await request(app.getHttpServer())
       .post('/movements/validation')
       .send(invalidRequestWithDuplicates)
-      .expect(422);
+      .expect(200);
 
     expect(response.body).toEqual({
       success: false,
@@ -88,6 +89,38 @@ describe('MovementsController (e2e)', () => {
         "message": "Duplicate transaction with id 1",
         "type": "duplicate_transaction",
       }]
+    });
+  });
+
+  it('should fail validation for incorrect balance and duplicate movement', async () => {
+    const invalidRequest = {
+      movements: [
+        { id: 1, date: '2023-01-01', label: 'Achat', amount: 100 },
+        { id: 1, date: '2023-01-01', label: 'Achat', amount: 100 },
+      ],
+      balances: [
+        { date: '2023-01-31', balance: 200 },
+      ],
+    };
+  
+    const response = await request(app.getHttpServer())
+      .post('/movements/validation')
+      .send(invalidRequest)
+      .expect(200);
+  
+    expect(response.body).toEqual({
+      success: false,
+      message: 'Validation failed',
+      reasons: expect.arrayContaining([
+        {
+          type: 'duplicate_transaction',
+          message: expect.stringContaining('Duplicate transaction'),
+        },
+        {
+          type: 'balance_mismatch',
+          message: expect.stringContaining('Balance mismatch'),
+        },
+      ]),
     });
   });
 
