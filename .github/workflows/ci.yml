@@ -47,8 +47,8 @@ jobs:
         with:
           node-version: '20'
 
-      # Step 3: Install dependencies
-      - name: Install dependenci
+      # Step 3: Install dependencies (skip this step if already cached)
+      - name: Install dependencies
         run: npm install --legacy-peer-deps
 
       # Step 4: Build the application
@@ -75,10 +75,10 @@ jobs:
         with:
           node-version: '20'
 
-      # Step 3: Deploy to Railway using Railway CLI
-      - name: Deploy to Railway
+      # Step 3: Install Railway CLI and deploy
+      - name: Deploy to Railway using the new Railway CLI
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }} # Railway deployment token
         run: |
-          npm install -g railway
+          npm install -g @railway/cli
           railway up --ci
