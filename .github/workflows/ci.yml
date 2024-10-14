@@ -1,0 +1,84 @@
+name: CI Pipeline
+
+# Run this workflow on pushes and pull requests to the 'main' branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20' # Specify the Node.js version you are using
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Run unit tests
+      - name: Run unit tests
+        run: npm test
+
+  e2e-test:
+    name: Run End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: test # Only run e2e tests if unit tests pass
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Build the application
+      - name: Build the app
+        run: npm run build
+
+      # Step 5: Run end-to-end tests
+      - name: Run e2e tests
+        run: npm run test:e2e
+
+  deploy:
+    name: Deploy to Railway
+    needs: e2e-test # Only deploy if e2e tests pass
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository again
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Node.js environment again
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      # Step 3: Deploy to Railway using Railway CLI
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }} # Railway deployment token
+        run: |
+          npm install -g railway
+          railway up --ci
