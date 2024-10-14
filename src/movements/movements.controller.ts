@@ -15,8 +15,8 @@ export class MovementsController {
         summary: 'Validate movements',
         description: 'Validates a list of movements and balances to ensure they are consistent with each other.',
       })
-    @ApiOkResponse({ description: 'Data successfully processed (validation succeeded or failed)', type: ValidationResponseDto, example: { success: false, message: 'Validation failed', validationErrors: [] } })
-    @ApiBadRequestResponse({ description: 'Bad request (malformed body)', example: { statusCode: 400, message: ['movements[0].amount should not be empty'] } })
+    @ApiOkResponse({ description: 'Data successfully processed (validation succeeded or failed)', type: ValidationResponseDto })
+    @ApiBadRequestResponse({ description: 'Bad request (malformed body)' })
     @ApiBody({ type: ValidateMovementsDto })
     validate(@Res() res: Response, @Body() validateMovementsDto: ValidateMovementsDto): ValidationResponseDto | BadRequestException {
         const result = this.movementsService.validateMovements(validateMovementsDto);
