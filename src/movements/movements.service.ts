@@ -1,41 +1,45 @@
 import { Injectable } from '@nestjs/common';
-import { ValidateMovementsDto } from './dto/validate-movements.dto';
+import { MovementDto, ValidateMovementsDto } from './dto/validate-movements.dto';
 import { ValidationError, ValidationErrorType, ValidationResponseDto } from './dto/validation-response.dto';
 
 @Injectable()
 export class MovementsService {
+
+    private static _transactionsMapper(movements: MovementDto[]): Map<string, MovementDto & { occurences: number }> {
+        const duplicateTransactions = new Map<string, MovementDto & { occurences: number }>();
+        movements.forEach(movement => {
+            const id = movement.id.toString();
+            const { occurences, ...mov } = duplicateTransactions.get(id) || { occurences: 0, ...movement};
+            duplicateTransactions.set(id, { occurences: occurences + 1, ...mov });
+        });
+        return duplicateTransactions
+    }
+    
     validateMovements(dto: ValidateMovementsDto): ValidationResponseDto {
         const { movements, balances } = dto;
         const validationErrors: ValidationError[] = [];
 
+        // Map transaction IDs to their occurences and date (improving complexity)
+        const transactionsOccurences = MovementsService._transactionsMapper(movements);
+
         // Filter duplicate transactions
-        const uniqueIds = new Set<number>();
-        const filteredMovements = movements.filter((movement) => {
-            if (uniqueIds.has(movement.id)) {
-                // const occurences = movements.filter(m => m.id === movement.id).length;
-                const existingError = validationErrors.find(e => e.duplicate_operation_id === movement.id.toString())
-                if (existingError) {
-                    existingError.occurences ++;
-                    return false;
-                }
+        [...transactionsOccurences.entries()]
+            .filter(([_, { occurences }]) => occurences > 1)
+            .forEach(([id, { occurences, date }]) => {
                 validationErrors.push({
                     type: ValidationErrorType.DuplicateTransaction,
-                    date: movement.date,
-                    suggested_fixes: `Please remove the duplicate transaction`, //  (${occurences} occurences)`,
-                    duplicate_operation_id: movement.id.toString(),
-                    occurences: 2, // 2 because the current movement is also counted in the occurences
+                    date,
+                    suggested_fixes: `Please remove the duplicate transaction (${occurences} occurences)`,
+                    duplicate_operation_id: id,
+                    occurences,
                 });
-                return false;
-            } else {
-                uniqueIds.add(movement.id);
-                return true;
-            }
-        });
+            });
 
         // Validate each balance with filtered movements
         for (const balance of balances) {
-            const filteredBalanceMovements = filteredMovements.filter(m => m.date <= balance.date);
-            const calculatedBalance = filteredBalanceMovements.reduce((sum, mov) => sum + mov.amount, 0);
+            const calculatedBalance = [...transactionsOccurences.entries()]
+                .filter(([_, { date }]) => date <= balance.date)
+                .reduce((sum, mov) => sum + mov[1].amount, 0);
 
             if (calculatedBalance !== balance.balance) {
                 validationErrors.push({
