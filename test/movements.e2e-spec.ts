@@ -3,6 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { validationPipeConfig } from '../src/validationPipeConfig';  // Import shared config (shared with src)
+import { ValidationErrorType } from '../src/movements/dto/validation-response.dto';
 
 describe('MovementsController (e2e)', () => {
   let app: INestApplication;
@@ -84,11 +85,14 @@ describe('MovementsController (e2e)', () => {
 
     expect(response.body).toEqual({
       success: false,
-      message: 'Validation failed',
-      reasons: [{
-        "message": "Duplicate transaction with id 1",
-        "type": "duplicate_transaction",
-      }]
+      message: expect.stringContaining('Validation failed'),
+      reasons: expect.arrayContaining([{
+        type: ValidationErrorType.DuplicateTransaction,
+        date: expect.any(String),
+        duplicate_operation_id: '1',
+        occurences: 2,
+        suggested_fixes: expect.stringContaining('Please remove the duplicate transaction'),
+      }])
     });
   });
 
@@ -110,15 +114,22 @@ describe('MovementsController (e2e)', () => {
   
     expect(response.body).toEqual({
       success: false,
-      message: 'Validation failed',
+      message: expect.stringContaining('Validation failed'),
       reasons: expect.arrayContaining([
         {
-          type: 'duplicate_transaction',
-          message: expect.stringContaining('Duplicate transaction'),
+          type: ValidationErrorType.DuplicateTransaction,
+          date: expect.any(String),
+          suggested_fixes:  expect.stringContaining('Please remove the duplicate transaction'),
+          duplicate_operation_id: '1',
+          occurences: 2,
         },
         {
-          type: 'balance_mismatch',
-          message: expect.stringContaining('Balance mismatch'),
+          type: ValidationErrorType.BalanceMismatch,
+          date: expect.any(String),
+          suggested_fixes: "Please check the movements and balances again",
+          calculated_balance: 100,
+          expected_balance: 200,
+          missing_amount: 100,
         },
       ]),
     });

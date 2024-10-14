@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { MovementDto } from './validate-movements.dto';
 
-enum ValidationErrorType {
+export enum ValidationErrorType {
     BalanceMismatch = 'balance_mismatch',
     DuplicateTransaction = 'duplicate_transaction',
 }
@@ -26,8 +26,8 @@ export class ValidationError {
     @ApiPropertyOptional({ description: `The missing amount (for "${ValidationErrorType.BalanceMismatch}" error type ONLY)`, type: Number })
     missing_amount?: number;
   
-    @ApiPropertyOptional({ description: `The duplicate operation (for "${ValidationErrorType.DuplicateTransaction}" error type ONLY)`, type: MovementDto })
-    duplicate_operation?: MovementDto;
+    @ApiPropertyOptional({ description: `The duplicate operation ID (for "${ValidationErrorType.DuplicateTransaction}" error type ONLY)`, type: String })
+    duplicate_operation_id?: string;
   
     @ApiPropertyOptional({ description: `Number of duplicate operation occurences (for "${ValidationErrorType.DuplicateTransaction}" error type ONLY)`, type: Number })
     occurences?: number;

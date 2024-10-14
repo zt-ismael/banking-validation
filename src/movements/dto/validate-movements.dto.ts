@@ -57,6 +57,4 @@ export class ValidateMovementsDto {
   @ValidateNested({ each: true })
   @Type(() => BalanceDto)
   balances: BalanceDto[];
-
-  
 }
