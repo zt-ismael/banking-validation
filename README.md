@@ -22,64 +22,125 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
+# API Documentation
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+  This repository contains the code for a simple API that validates movements and balances for a banking system. It is built using the [Nest](https://github.com/nestjs/nest) framework, written in TypeScript.
 
-## Project setup
+  
+  ## API Endpoints
 
-```bash
-$ npm install
-```
+  - **Validate Movements**
+    - **Endpoint**: `POST /movements/validation`
+    - **Description**: Validates a list of movements and balances to ensure they are consistent with each other.
+    - **Request Body Example**: 
+    ```json
+    {
+      "movements": [
+        {
+          "id": 1,
+          "date": "2024-01-15",
+          "label": "Salary",
+          "amount": 2000
+        }
+      ],
+      "balances": [
+        {
+          "date": "2024-01-31",
+          "expected_balance": 1900,
+          "calculated_balance": 1800
+        }
+      ]
+    }
+    ```
+    - **Responses**:
+    - **200 OK**: Data successfully processed (validation succeeded or failed)
+    - **400 Bad Request**: Bad request (malformed body)
 
-## Compile and run the project
 
-```bash
-# development
-$ npm run start
+  ## CI/CD and Deployment
 
-# watch mode
-$ npm run start:dev
+  This project uses GitHub Actions for CI/CD and is deployed to [Railway](https://railway.app). Here are some useful links:
 
-# production mode
-$ npm run start:prod
-```
+  - [Railway App Deployment](https://banking-validation-production.up.railway.app): This is the public URL where the application is deployed.
+  - [Redoc Documentation](https://banking-validation-production.up.railway.app/documentation): Use this link to access the API documentation generated with Redoc.
+  - [Swagger Documentation / Playground](https://banking-validation-production.up.railway.app/swagger): Explore the API using Swagger documentation and playground.
 
-## Run tests
 
-```bash
-# unit tests
-$ npm run test
+  ## Usage
 
-# e2e tests
-$ npm run test:e2e
+  1. Clone the repository:
 
-# test coverage
-$ npm run test:cov
-```
+    ```bash
+    $ git clone https://github.com/zt-ismael/banking-validation.git
+    ```
 
-## Resources
+  2. Install the dependencies:
 
-Check out a few resources that may come in handy when working with NestJS:
+    ```bash
+    $ cd your-repo
+    $ npm install
+    ```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+  3. Start the server:
 
-## Support
+    ```bash
+    $ npm run start
+    ```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+    The server will be running on port 3000.
 
-## Stay in touch
+  4. Test the API:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+    Use tools like Postman or cURL to send requests to the API endpoints.
 
-## License
+  5. Compile and run the project:
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+    ```bash
+    # development
+    $ npm run start
+
+    # watch mode
+    $ npm run start:dev
+
+    # production mode
+    $ npm run start:prod
+    ```
+
+  6. Run tests:
+
+    ```bash
+    # unit tests
+    $ npm run test
+
+    # e2e tests
+    $ npm run test:e2e
+
+    # test coverage
+    $ npm run test:cov
+    ```
+
+  ## Resources
+
+  Here are some resources that may come in handy when working with this project:
+
+  - Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
+  - For questions and support, please visit the [NestJS Discord channel](https://discord.gg/G7Qnnhy).
+  - To dive deeper and get more hands-on experience, check out the official [NestJS video courses](https://courses.nestjs.com/).
+  - Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
+  - Need help with your project (part-time to full-time)? Check out the official [NestJS enterprise support](https://enterprise.nestjs.com).
+  - To stay in the loop and get updates, follow [NestJS on Twitter](https://twitter.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
+  - Looking for a job, or have a job to offer? Check out the official [NestJS Jobs board](https://jobs.nestjs.com).
+
+  ## Support
+
+  Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+
+  ## Stay in touch
+
+  - Author - [Ismaël ZAKARI TOURE](https://www.linkedin.com/in/isma%C3%ABl-zakari-toure)
+  - Website - [https://nestjs.com](https://nestjs.com/)
+  - Twitter - [@nestframework](https://twitter.com/nestframework)
+
+  ## License
+
+  This project is [MIT licensed](https://github.com/your-username/your-repo/blob/master/LICENSE).
