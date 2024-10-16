@@ -54,6 +54,7 @@
     ```
     - **Responses**:
     - **200 OK**: Data successfully processed (validation succeeded or failed)
+    - **444 Duplicate Transactions**: Duplicate Transactions Found
     - **400 Bad Request**: Bad request (malformed body)
 
 

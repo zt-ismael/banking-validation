@@ -26,8 +26,8 @@ export class ValidationError {
     @ApiPropertyOptional({ description: `The missing amount (for "${ValidationErrorType.BalanceMismatch}" error type ONLY)`, type: Number })
     missing_amount?: number;
   
-    @ApiPropertyOptional({ description: `The duplicate operation ID (for "${ValidationErrorType.DuplicateTransaction}" error type ONLY)`, type: String })
-    duplicate_operation_id?: string;
+    @ApiPropertyOptional({ description: `The duplicate operation ID (for "${ValidationErrorType.DuplicateTransaction}" error type ONLY)`, type: Number })
+    duplicate_operation_id?: number;
   
     @ApiPropertyOptional({ description: `Number of duplicate operation occurences (for "${ValidationErrorType.DuplicateTransaction}" error type ONLY)`, type: Number })
     occurences?: number;
